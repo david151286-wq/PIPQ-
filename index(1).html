@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Primeira Igreja Presbiteriana em Queimados</title>
+<meta name="description" content="Primeira Igreja Presbiteriana em Queimados — cultos, hinário, Bíblia, eventos e contato." />
+
+<link rel="manifest" href="./manifest.json" />
+<meta name="theme-color" content="#0b1f1a" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink: #0b1f1a;
+    --ink-2: #122d26;
+    --paper: #f7f3e9;
+    --paper-2: #fffdf8;
+    --paper-3: #eee9dd;
+    --border: rgba(255, 252, 240, 0.1);
+    
+    --accent: #d9bf8f;
+    --accent-dim: #c5ac7e;
+    --accent-bg: #213c33;
+    
+    --text-1: #fffcf0;
+    --text-2: rgba(255, 252, 240, 0.7);
+    --text-on-light: #1c2e29;
+    --text-on-light-2: #4d5e59;
+
+    --font-display: 'Fraunces', serif;
+    --font-ui: 'Inter', sans-serif;
+    
+    --viewport-max: 1100px;
+    --gap-xs: 8px;
+    --gap-s: 16px;
+    --gap-m: 24px;
+    --gap-l: 40px;
+    --gap-xl: 64px;
+    --gap-xxl: 104px;
+    --radius-m: 16px;
+    --radius-l: 24px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+  
+  html, body {
+    height: 100%;
+    font-family: var(--font-ui);
+    background-color: var(--ink);
+    color: var(--text-1);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,252,240,0.1); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,252,240,0.2); }
+
+  button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; transition: all 0.2s ease; }
+  a { text-decoration: none; color: inherit; transition: color 0.2s ease; }
+  input, select, textarea { font-family: inherit; border: none; }
+
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .ambient-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    z-index: -1;
+  }
+
+  .ambient::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(11, 31, 26, 0.45) 0%, rgba(11, 31, 26, 0.85) 100%);
+    z-index: 1;
+  }
+
+  .app {
+    position: relative;
+    z-index: 2;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container {
+    width: 100%;
+    max-width: var(--viewport-max);
+    margin: 0 auto;
+    padding: 0 var(--gap-m);
+  }
+
+  /* HEADER */
+  .header {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: rgba(11, 31, 26, 0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 10;
+  }
+
+  .header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .brand {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-1);
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+  }
+  
+  .brand i { color: var(--accent); font-size: 16px; }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+  }
+
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-content: center;
+    border-radius: 50%;
+    background: rgba(255,252,240,0.04);
+    color: var(--accent);
+  }
+  
+  .icon-btn:hover {
+    background: rgba(255,252,240,0.08);
+  }
+  
+  #btn-install { display: none; }
+
+  /* STAGE & VIEWS */
+  .stage {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--gap-xxl);
+  }
+
+  .view {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    padding: var(--gap-l) 0;
+  }
+
+  .view.active {
+    display: block;
+    opacity: 1;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 5vw, 40px);
+    font-weight: 700;
+    color: var(--text-1);
+    margin-bottom: var(--gap-xs);
+  }
+
+  .section-subtitle {
+    font-size: 16px;
+    color: var(--text-2);
+    max-width: 600px;
+    line-height: 1.6;
+    margin-bottom: var(--gap-m);
+  }
+
+  .panel {
+    background: var(--paper);
+    color: var(--text-on-light);
+    border-radius: var(--radius-l);
+    padding: var(--gap-l);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    margin-bottom: var(--gap-m);
+  }
+
+  /* INÍCIO & HERO */
+  .hero {
+    text-align: center;
+    padding: var(--gap-s) 0;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 6vw, 48px);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-1);
+    margin-bottom: var(--gap-s);
+  }
+  
+  .hero-title span { color: var(--accent); }
+
+  /* CARD VERSÍCULO DO DIA */
+  .verse-of-the-day {
+    background: rgba(217, 191, 143, 0.08);
+    border: 1px solid rgba(217, 191, 143, 0.2);
+    padding: var(--gap-m);
+    border-radius: var(--radius-m);
+    margin: var(--gap-m) auto;
+    max-width: 650px;
+    text-align: center;
+  }
+  .vod-text { font-family: var(--font-display); font-size: 18px; font-style: italic; color: var(--text-1); margin-bottom: 8px; line-height: 1.5;}
+  .vod-ref { font-size: 14px; color: var(--accent); font-weight: 600; text-transform: uppercase;}
+
+  .quick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--gap-s);
+    width: 100%;
+    margin-top: var(--gap-l);
+    text-align: left;
+  }
+
+  .card {
+    background: rgba(255,252,240,0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-m);
+    padding: var(--gap-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+    cursor: pointer;
+  }
+  
+  .card:hover {
+    background: rgba(255,252,240,0.06);
+    transform: translateY(-2px);
+  }
+
+  .card .ic { color: var(--accent); font-size: 20px; margin-bottom: 4px; }
+  .card h3 { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-1); }
+  .card p { font-size: 13.5px; color: var(--text-2); line-height: 1.4; }
+
+  /* HINÁRIO & BUSCA */
+  .search-sticky {
+    position: sticky;
+    top: -1px;
+    background: var(--ink);
+    padding: var(--gap-s) 0;
+    z-index: 5;
+    margin-bottom: var(--gap-m);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search-bar {
+    display: flex;
+    background: rgba(255,252,240,0.05);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 4px;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .search-bar input {
+    flex: 1;
+    padding: 10px 16px;
+    background: transparent;
+    color: var(--text-1);
+    font-size: 16px;
+  }
+
+  .hymns-list { display: flex; flex-direction: column; gap: var(--gap-s); }
+  .hymn-item { background: var(--paper-2); border: 1px solid var(--paper-3); padding: var(--gap-s); border-radius: var(--radius-m); text-align: left; width: 100%; }
+  .hymn-item:hover { border-color: var(--accent-dim); }
+  .hymn-item-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--ink); }
+  .hymn-item-number { font-size: 13px; color: var(--accent-dim); font-weight: 600; }
+  .hymn-lyrics { font-size: 17px; line-height: 1.8; color: var(--text-on-light); white-space: pre-wrap; margin-top: var(--gap-m); }
+
+  /* BÍBLIA */
+  .bible-nav { display: flex; gap: var(--gap-s); margin-bottom: var(--gap-m); flex-wrap: wrap; background: rgba(255,252,240,0.03); border: 1px solid var(--border); padding: var(--gap-s); border-radius: var(--radius-m); }
+  .selector { background: var(--ink-2); border: 1px solid var(--border); border-radius: 8px; color: var(--text-1); padding: 10px 16px; font-size: 15px; min-width: 150px; }
+  .bible-reader h2 { font-family: var(--font-display); font-size: 24px; margin-bottom: var(--gap-m); color: var(--ink); border-bottom: 2px solid var(--paper-3); padding-bottom: var(--gap-xs); }
+  .verse { font-size: 17px; line-height: 1.7; margin-bottom: 14px; color: var(--text-on-light); display: flex; gap: 12px; }
+  .verse-num { font-size: 12px; font-weight: 700; color: var(--accent-dim); margin-top: 4px; min-width: 24px; text-align: right; }
+  .verse-text { flex: 1; }
+
+  /* HISTÓRIA / QUEM SOMOS */
+  .history-text { font-size: 16px; line-height: 1.7; margin-bottom: var(--gap-s); text-align: justify; }
+  .sub-history-title { font-family: var(--font-display); font-size: 20px; color: var(--ink); margin: var(--gap-m) 0 var(--gap-xs) 0; font-weight: 700; }
+
+  /* PEDIDOS DE ORAÇÃO & FORMULÁRIO */
+  .input-field { width: 100%; background: var(--paper-2); border: 1px solid var(--paper-3); padding: 12px 16px; border-radius: 8px; font-size: 15px; margin-bottom: var(--gap-s); color: var(--text-on-light); }
+  .input-field:focus { border-color: var(--accent-dim); }
+  .textarea-field { resize: none; height: 120px; }
+  
+  /* CULTS / TIMETABLE */
+  .cult-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--paper-3); }
+  .cult-row:last-child { border-bottom: none; }
+  .cult-day { font-weight: 700; color: var(--ink); }
+  .cult-time { color: var(--accent-bg); font-weight: 600; }
+
+  /* BOTÕES E FOOTER */
+  .action-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: var(--accent); color: var(--ink); padding: 12px 24px; border-radius: 100px; font-weight: 700; cursor: pointer; text-decoration: none;}
+  .action-btn:hover { background: var(--accent-dim); }
+
+  /* NAV MÓVEL INTERIOR */
+  .nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 72px; background: rgba(11, 31, 26, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--border); z-index: 100; }
+  .nav .container { height: 100%; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0; }
+  .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-2); font-size: 11px; }
+  .nav-btn i { font-size: 18px; }
+  .nav-btn.active { color: var(--accent); font-weight: 600; }
+
+  @media (max-width: 900px) {
+    .stage { padding-bottom: 100px; }
+    .quick-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="ambient">
+    <video autoplay muted loop playsinline class="ambient-video">
+      <source src="./fundo.mp4.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <div class="app">
+    <header class="header">
+      <div class="container">
+        <div class="brand">
+          <i class="fa-solid fa-cross"></i>
+          <h1>IP Queimados</h1>
+        </div>
+        <div class="header-controls">
+          <button class="icon-btn" onclick="window.location.reload()"><i class="fa-solid fa-sync-alt"></i></button>
+          <button id="btn-install" class="icon-btn"><i class="fa-solid fa-download"></i></button>
+        </div>
+      </div>
+    </header>
+
+    <main class="stage">
+      <div class="container">
+
+        <section id="view-inicio" class="view active">
+          <div class="hero">
+            <h2 class="hero-title">Primeira Igreja <span>Presbiteriana</span></h2>
+            <p class="hero-text">Uma comunidade bíblica, reformada e acolhedora em Queimados.</p>
+            
+            <div class="verse-of-the-day">
+              <p class="vod-text" id="vod-display">"Lâmpada para os meus pés é tua palavra, e luz para o meu caminho."</p>
+              <p class="vod-ref" id="vod-reference">Salmo 119:105</p>
+            </div>
+
+            <div class="quick-grid">
+              <button class="card" onclick="goToView('hinario')">
+                <i class="fa-solid fa-book-open ic"></i>
+                <h3>Hinário NC</h3>
+                <p>Acesse e busque os hinos oficiais do Novo Cântico.</p>
+              </button>
+              <button class="card" onclick="goToView('biblia')">
+                <i class="fa-solid fa-bible ic"></i>
+                <h3>Bíblia Sagrada</h3>
+                <p>Leitura integral e simplificada da versão ACF.</p>
+              </button>
+              <button class="card" onclick="goToView('historia')">
+                <i class="fa-solid fa-scroll ic"></i>
+                <h3>Quem Somos</h3>
+                <p>Conheça nossa história, fé e no que cremos.</p>
+              </button>
+              <button class="card" onclick="goToView('info')">
+                <i class="fa-solid fa-calendar-days ic"></i>
+                <h3>Cultos & Oração</h3>
+                <p>Confira os horários e envie seu pedido de oração.</p>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-hinario" class="view">
+          <div class="search-sticky">
+            <h2 class="section-title">Hinário Novo Cântico</h2>
+            <p class="section-subtitle">Digite o número ou parte do título do hino.</p>
+            <div class="search-bar">
+              <input type="text" id="hymn-search" placeholder="Ex: 1 ou Doxologia...">
+            </div>
+          </div>
+          <div id="hymns-container" class="hymns-list"></div>
+        </section>
+
+        <section id="view-biblia" class="view">
+          <h2 class="section-title">Bíblia Sagrada</h2>
+          <p class="section-subtitle">Versão Almeida Corrigida Fiel (ACF).</p>
+          
+          <div class="bible-nav">
+            <select id="bible-books" class="selector" onchange="loadChapters()"></select>
+            <select id="bible-chapters" class="selector" onchange="loadVerses()"></select>
+          </div>
+          
+          <div id="bible-text" class="panel bible-reader">Selecione um livro acima para iniciar a leitura.</div>
+        </section>
+
+        <section id="view-historia" class="view">
+          <h2 class="section-title">Nossa Identidade</h2>
+          <p class="section-subtitle">Conheça mais sobre as nossas raízes e convicções de fé.</p>
+          
+          <div class="panel">
+            <h3 class="sub-history-title" style="margin-top:0;">Quem Somos</h3>
+            <p class="history-text">A Primeira Igreja Presbiteriana em Queimados é uma comunidade local federada à Igreja Presbiteriana do Brasil (IPB). Somos uma igreja de tradição cristã histórica, originada na Reforma Protestante do Século XVI, especificamente sob a linha teológica de João Calvino.</p>
+            
+            <h3 class="sub-history-title">No que Cremos</h3>
+            <p class="history-text">Cremos que a Bíblia Sagrada é a nossa única regra infalível de fé e prática. Adotamos como sistema exposto de doutrinas os símbolos de Westminster (a Confissão de Fé, o Catecismo Maior e o Breve Catecismo).</p>
+            <p class="history-text">Afirmamos os cinco pilares da fé reformada: Salvação unicamente pela Graça, por meio da Fé, somente em Cristo, para a glória de Deus e fundamentados unicamente nas Escrituras.</p>
+          </div>
+        </section>
+
+        <section id="view-info" class="view">
+          <h2 class="section-title">Comunhão & Serviço</h2>
+          <p class="section-subtitle">Horários de cultos, intercessão e localização.</p>
+          
+          <div class="panel">
+            <h3 class="sub-history-title" style="margin-top:0;"><i class="fa-solid fa-clock"></i> Horários das Atividades</h3>
+            <div class="cult-row">
+              <span class="cult-day">Domingo — Escola Dominical</span>
+              <span class="cult-time">09:00h</span>
+            </div>
+            <div class="cult-row">
+              <span class="cult-day">Domingo — Culto de Adoração</span>
+              <span class="cult-time">19:00h</span>
+            </div>
+            <div class="cult-row">
+              <span class="cult-day">Quarta-feira — Culto de Oração</span>
+              <span class="cult-time">19:30h</span>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3 class="sub-history-title" style="margin-top:0;"><i class="fa-solid fa-hands-praying"></i> Pedidos de Oração</h3>
+            <p class="history-text" style="font-size:14px; color:var(--text-on-light-2);">"Não andeis ansiosos de coisa alguma; em tudo, porém, sejam conhecidas diante de Deus as vossas petições..." (Filipenses 4:6)</p>
+            
+            <form id="prayer-form" onsubmit="sendPrayer(event)">
+              <input type="text" id="prayer-name" class="input-field" placeholder="Seu nome (Opcional)">
+              <textarea id="prayer-text" class="input-field textarea-field" placeholder="Escreva aqui o seu pedido de oração..." required></textarea>
+              <button type="submit" class="action-btn"><i class="fa-solid fa-paper-plane"></i> Enviar Pedido</button>
+            </form>
+          </div>
+
+          <div class="panel">
+            <h3 class="sub-history-title" style="margin-top:0;"><i class="fa-solid fa-location-dot"></i> Localização</h3>
+            <p class="history-text">Venha adorar ao Senhor conosco! Nosso endereço:</p>
+            <p class="history-text" style="font-weight:600;">Rua Exemplo, 123, Centro — Queimados - RJ</p>
+            <a href="https://maps.google.com" target="_blank" class="action-btn" style="margin-top:10px;">
+              <i class="fa-solid fa-map-location-dot"></i> Abrir no Google Maps
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <nav class="nav">
+      <div class="container">
+        <button class="nav-btn active" data-target="inicio" onclick="goToView('inicio')"><i class="fa-solid fa-house"></i>Início</button>
+        <button class="nav-btn" data-target="hinario" onclick="goToView('hinario')"><i class="fa-solid fa-book-open"></i>Hinário</button>
+        <button class="nav-btn" data-target="biblia" onclick="goToView('biblia')"><i class="fa-solid fa-bible"></i>Bíblia</button>
+        <button class="nav-btn" data-target="info" onclick="goToView('info')"><i class="fa-solid fa-circle-info"></i>Info & Cultos</button>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    // Versículos para o Card Dinâmico "Versículo do Dia"
+    const versesPool = [
+      { t: "Lâmpada para os meus pés é tua palavra, e luz para o meu caminho.", r: "Salmo 119:105" },
+      { t: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito...", r: "João 3:16" },
+      { t: "O Senhor é o meu pastor, nada me faltará.", r: "Salmo 23:1" },
+      { t: "Tudo posso naquele que me fortalece.", r: "Filipenses 4:13" },
+      { t: "Buscai antes o reino de Deus, e todas estas coisas vos serão acrescentadas.", r: "Lucas 12:31" },
+      { t: "Entrega o teu caminho ao Senhor; confia nele, e ele o fará.", r: "Salmo 37:5" }
+    ];
+
+    function loadVerseOfTheDay() {
+      const randomIdx = Math.floor(Math.random() * versesPool.length);
+      document.getElementById('vod-display').textContent = `"${versesPool[randomIdx].t}"`;
+      document.getElementById('vod-reference').textContent = versesPool[randomIdx].r;
+    }
+
+    // Inicializar Versículo
+    loadVerseOfTheDay();
+
+    // Navegação entre Telas
+    function goToView(viewName) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      
+      const targetView = document.getElementById('view-' + viewName);
+      if (targetView) targetView.classList.add('active');
+      
+      const btn = document.querySelector(`[data-target="${viewName}"]`);
+      if (btn) btn.classList.add('active');
+      
+      document.querySelector('.stage').scrollTop = 0;
+    }
+
+    // Formulário de Oração
+    function sendPrayer(e) {
+      e.preventDefault();
+      const name = document.getElementById('prayer-name').value || "Anônimo";
+      const text = document.getElementById('prayer-text').value;
+      
+      alert(`Obrigado, ${name}! Seu pedido de oração foi recebido e nossa equipe estará intercedendo.`);
+      document.getElementById('prayer-form').reset();
+    }
+
+    // --- LÓGICA DA BÍBLIA ---
+    let bibleData = [];
+    const booksSelect = document.getElementById('bible-books');
+    const chaptersSelect = document.getElementById('bible-chapters');
+    const bibleText = document.getElementById('bible-text');
+
+    fetch('./biblia-acf.json')
+      .then(res => res.json())
+      .then(data => {
+        bibleData = data;
+        booksSelect.innerHTML = '<option value="">Selecione o Livro...</option>';
+        bibleData.forEach((book, idx) => {
+          booksSelect.innerHTML += `<option value="${idx}">${book.name}</option>`;
+        });
+      })
+      .catch(err => {
+        bibleText.innerHTML = "<p style='color:red;'>Erro ao carregar dados. Use um Servidor Local (Live Server).</p>";
+      });
+
+    function loadChapters() {
+      const bookIdx = booksSelect.value;
+      chaptersSelect.innerHTML = '';
+      bibleText.innerHTML = 'Selecione o capítulo.';
+      if(bookIdx === "") return;
+      
+      const chapters = bibleData[bookIdx].chapters;
+      chaptersSelect.innerHTML = '<option value="">Capítulo...</option>';
+      chapters.forEach((_, idx) => {
+        chaptersSelect.innerHTML += `<option value="${idx}">${idx + 1}</option>`;
+      });
+    }
+
+    function loadVerses() {
+      const bookIdx = booksSelect.value;
+      const chapIdx = chaptersSelect.value;
+      if(bookIdx === "" || chapIdx === "") return;
+      
+      const bookName = bibleData[bookIdx].name;
+      const verses = bibleData[bookIdx].chapters[chapIdx];
+      
+      let html = `<h2>${bookName} — Capítulo ${parseInt(chapIdx) + 1}</h2>`;
+      verses.forEach((verseText, idx) => {
+        html += `
+          <div class="verse">
+            <span class="verse-num">${idx + 1}</span>
+            <p class="verse-text">${verseText}</p>
+          </div>
+        `;
+      });
+      bibleText.innerHTML = html;
+    }
+
+    // --- LÓGICA DO HINÁRIO ---
+    let hymnsData = [];
+    const hymnSearch = document.getElementById('hymn-search');
+    const hymnsContainer = document.getElementById('hymns-container');
+
+    fetch('./novo-cantico.json')
+      .then(res => res.json())
+      .then(data => {
+        hymnsData = data;
+        renderHymns(hymnsData);
+      })
+      .catch(err => console.error("Erro ao carregar hinário:", err));
+
+    function renderHymns(list) {
+      hymnsContainer.innerHTML = '';
+      if(list.length === 0) {
+        hymnsContainer.innerHTML = '<p style="color:var(--text-2)">Nenhum hino encontrado.</p>';
+        return;
+      }
+      
+      const limit = list.length > 50 ? list.slice(0, 15) : list;
+      
+      limit.forEach(hymn => {
+        const item = document.createElement('button');
+        item.className = 'hymn-item';
+        item.innerHTML = `
+          <span class="hymn-item-number">Hino ${hymn.numero}</span>
+          <div class="hymn-item-title">${hymn.titulo}</div>
+        `;
+        item.onclick = () => showHymnDetail(hymn);
+        hymnsContainer.appendChild(item);
+      });
+    }
+
+    function showHymnDetail(hymn) {
+      hymnsContainer.innerHTML = `
+        <button class="action-btn" onclick="renderHymns(hymnsData); hymnSearch.value='';">
+          <i class="fa-solid fa-arrow-left"></i> Voltar à Lista
+        </button>
+        <div class="panel" style="margin-top:var(--gap-s)">
+          <span class="hymn-item-number">Hino nº ${hymn.numero}</span>
+          <h2 style="font-family:var(--font-display); color:var(--ink); margin-bottom:10px;">${hymn.titulo}</h2>
+          <p class="hymn-lyrics">${hymn.letra}</p>
+        </div>
+      `;
+    }
+
+    hymnSearch.addEventListener('input', (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      if(!query) {
+        renderHymns(hymnsData);
+        return;
+      }
+      const filtered = hymnsData.filter(h => 
+        h.numero.toString() === query || 
+        h.titulo.toLowerCase().includes(query)
+      );
+      renderHymns(filtered);
+    });
+  </script>
+</body>
+</html>
